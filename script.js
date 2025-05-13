@@ -14,11 +14,11 @@ const controls = document.querySelectorAll(".controls i");
 /* Variavel Boleana que indica se o jogo terminou */
 let gameOver = false;
 // Variavel para armazenar as coordenadas X e Y da Comida
-let foodX, foddY;
+let foodX, foodY;
 //Armazena as coordenadas X e Y da cabeça da cobra(posição inical de 5)
 let snakeX = 5, snakeY = 5;
 /* variavel para armazenar a velocidade nas direções X e Y, inicialmente em 0, pq a cobra está parada */
-let velocityX = 0, velocity = 0;
+let velocityX = 0, velocityY = 0;
 // uma Array para armazenar as coordenaadas de cada segmento do corpo, primeiro elemento é a cabeça
 let snakeBody = [];
 /* variavel para armazenar o ID do intervalo que será usado para atualizar o jogo em um determinado ritmo */
@@ -55,32 +55,32 @@ const handleGameOver = () => {
 
 // Função para Mudar a direção da cobrinha
 const changeDirection = e => {
-    if (e.key === "ArrouwUp" && velocityY != 1) {
+    if (e.key === "ArrowUp" && velocityY != 1) {
         velocityX = 0;
         velocityY = -1;
-    } else if (e.key === "AroowDown" && velocityY != -1) {
+    } else if (e.key === "ArrowDown" && velocityY != -1) {
         velocityX = 0;
-        velocityY = 1;  
-    } else if (e.key === "Aroowleft" && velocityX != 1) {
+        velocityY = 1;
+    } else if (e.key === "ArrowLeft" && velocityX != 1) {
         velocityX = -1;
         velocityY = 0;
-    } else if (e.key === "AroowRight" && velocityX != -1) {
+    } else if (e.key === "ArrowRight" && velocityX != -1) {
         velocityX = 1;
         velocityY = 0;
     }
 }
 
-controls.forEach(button => button.addEventListener("click", () => changeDirection({ key: button.dataset.key})));
+controls.forEach(button => button.addEventListener("click", () => changeDirection({ key: button.dataset.key })));
 
 //Começar o Game = init Game
 const initGame = () => {
     if (gameOver) return handleGameOver();
-    let html = `<div class="food" style="grid-area: ${foodY} / ${foodX}"`;
+    let html = `<div class="food" style="grid-area: ${foodY} / ${foodX}"></div>`;
 
     // Quando a cobra come
     if (snakeX === foodX && snakeY === foodY) {
         updateFoodPosition();
-        snakeBody.push([foodY, foodX]); 
+        snakeBody.push([foodX, foodY]);
         score++;
         highScore = score >= highScore ? score : highScore;
 
@@ -101,4 +101,20 @@ const initGame = () => {
     if (snakeX <= 0 || snakeX > 30 || snakeY <= 0 || snakeY > 30) {
         return gameOver = true;
     }
+
+    //add div para cada parte do corpo da cobra
+    for (let i = 0; i < snakeBody.length; i++) {
+        html += `<div class="head" style="grid-area: ${snakeBody[i][1]} / ${snakeBody[i][0]}"></div>`;
+
+        //Verifica se a cabeça da cobra atingiu ou colidiu com o corpo
+        if (i !== 0 && snakeBody[0][1] === snakeBody[i][1] && snakeBody[0][0] === snakeBody[i][0]) {
+            gameOver = true;
+        }
+
+    }
+    playBoard.innerHTML = html;
 }
+
+updateFoodPosition();
+setIntervalId = setInterval(initGame, 100);
+document.addEventListener("keyup", changeDirection);
